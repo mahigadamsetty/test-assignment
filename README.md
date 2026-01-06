@@ -151,10 +151,12 @@ This project was developed using **Test-Driven Development (TDD)**:
 2. Implement minimal code to make tests pass
 3. Refactor if needed
 
-The commit history reflects this incremental TDD approach at each layer:
-- DAO layer tests and implementation
-- Service layer tests and implementation (with validation)
-- Handler layer tests and implementation (with HTTP endpoints)
+**Note**: In strict TDD practice, each phase (RED-GREEN-REFACTOR) should be a separate commit. This implementation combined tests and implementation in single commits for each layer. See [TDD_PROCESS.md](TDD_PROCESS.md) for the ideal commit structure.
+
+The commit history includes:
+- DAO layer tests and implementation combined
+- Service layer tests and implementation (with validation) combined
+- Handler layer tests and implementation (with HTTP endpoints) combined
 
 ## Project Structure
 
