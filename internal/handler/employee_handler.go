@@ -3,6 +3,7 @@ package handler
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 	"strings"
@@ -30,6 +31,29 @@ func NewEmployeeHandler(service EmployeeService) *EmployeeHandler {
 	return &EmployeeHandler{service: service}
 }
 
+// extractIDFromPath extracts the ID from the URL path
+// It first tries to use gorilla/mux Vars, then falls back to manual parsing for tests
+func extractIDFromPath(r *http.Request) (int, error) {
+	vars := mux.Vars(r)
+	idStr, ok := vars["id"]
+	if !ok {
+		// Fallback to manual parsing for tests
+		pathParts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+		if len(pathParts) >= 2 {
+			idStr = pathParts[len(pathParts)-1]
+		} else {
+			return 0, errors.New("invalid URL")
+		}
+	}
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return 0, errors.New("invalid employee ID")
+	}
+
+	return id, nil
+}
+
 // CreateEmployee handles POST /employees
 func (h *EmployeeHandler) CreateEmployee(w http.ResponseWriter, r *http.Request) {
 	var employee model.Employee
@@ -50,23 +74,9 @@ func (h *EmployeeHandler) CreateEmployee(w http.ResponseWriter, r *http.Request)
 
 // GetEmployee handles GET /employees/{id}
 func (h *EmployeeHandler) GetEmployee(w http.ResponseWriter, r *http.Request) {
-	// Extract ID from URL path
-	vars := mux.Vars(r)
-	idStr, ok := vars["id"]
-	if !ok {
-		// Fallback to manual parsing for tests
-		pathParts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
-		if len(pathParts) >= 2 {
-			idStr = pathParts[len(pathParts)-1]
-		} else {
-			http.Error(w, "Invalid URL", http.StatusBadRequest)
-			return
-		}
-	}
-
-	id, err := strconv.Atoi(idStr)
+	id, err := extractIDFromPath(r)
 	if err != nil {
-		http.Error(w, "Invalid employee ID", http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -98,23 +108,9 @@ func (h *EmployeeHandler) GetAllEmployees(w http.ResponseWriter, r *http.Request
 
 // UpdateEmployee handles PUT /employees/{id}
 func (h *EmployeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request) {
-	// Extract ID from URL path
-	vars := mux.Vars(r)
-	idStr, ok := vars["id"]
-	if !ok {
-		// Fallback to manual parsing for tests
-		pathParts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
-		if len(pathParts) >= 2 {
-			idStr = pathParts[len(pathParts)-1]
-		} else {
-			http.Error(w, "Invalid URL", http.StatusBadRequest)
-			return
-		}
-	}
-
-	id, err := strconv.Atoi(idStr)
+	id, err := extractIDFromPath(r)
 	if err != nil {
-		http.Error(w, "Invalid employee ID", http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -136,23 +132,9 @@ func (h *EmployeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request)
 
 // DeleteEmployee handles DELETE /employees/{id}
 func (h *EmployeeHandler) DeleteEmployee(w http.ResponseWriter, r *http.Request) {
-	// Extract ID from URL path
-	vars := mux.Vars(r)
-	idStr, ok := vars["id"]
-	if !ok {
-		// Fallback to manual parsing for tests
-		pathParts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
-		if len(pathParts) >= 2 {
-			idStr = pathParts[len(pathParts)-1]
-		} else {
-			http.Error(w, "Invalid URL", http.StatusBadRequest)
-			return
-		}
-	}
-
-	id, err := strconv.Atoi(idStr)
+	id, err := extractIDFromPath(r)
 	if err != nil {
-		http.Error(w, "Invalid employee ID", http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
