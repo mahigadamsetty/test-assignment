@@ -40,8 +40,6 @@ func TestEmployeeHandler_CreateEmployee_Success(t *testing.T) {
 	}
 }
 
-// ---- tests ----
-
 func TestCreateEmployee_InvalidEmployee_Returns400(t *testing.T) {
 	mockSvc := &mockEmployeeService{
 		createFn: func(emp model.Employee) error {
