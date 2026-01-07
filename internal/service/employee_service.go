@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strings"
 
+	"test-assignment/internal/dao"
 	"test-assignment/internal/model"
 )
 
@@ -14,10 +15,12 @@ type EmployeeServiceInterface interface {
 	CreateEmployee(employee model.Employee) error
 }
 
-type employeeService struct{}
+type employeeService struct {
+	repo dao.EmployeeRepositoryInterface
+}
 
-func NewEmployeeService() *employeeService {
-	return &employeeService{}
+func NewEmployeeService(repo dao.EmployeeRepositoryInterface) *employeeService {
+	return &employeeService{repo: repo}
 }
 
 func (s *employeeService) CreateEmployee(employee model.Employee) error {

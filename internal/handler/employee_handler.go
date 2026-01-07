@@ -1,11 +1,12 @@
 package handler
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 	"test-assignment/internal/model"
 	"test-assignment/internal/service"
+
+	"github.com/gin-gonic/gin"
 )
 
 type EmployeeService interface {
@@ -20,23 +21,23 @@ func NewEmployeeHandler(s EmployeeService) *EmployeeHandler {
 	return &EmployeeHandler{service: s}
 }
 
-func (h *EmployeeHandler) CreateEmployee(w http.ResponseWriter, r *http.Request) {
+func (h *EmployeeHandler) CreateEmployee(c *gin.Context) {
 	var emp model.Employee
-	if err := json.NewDecoder(r.Body).Decode(&emp); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+	if err := c.ShouldBindJSON(&emp); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: " + err.Error()})
 		return
 	}
 
 	err := h.service.CreateEmployee(emp)
 	if err != nil {
 		if errors.Is(err, service.ErrInvalidEmployee) {
-			w.WriteHeader(http.StatusBadRequest)
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		w.WriteHeader(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	c.JSON(http.StatusCreated, gin.H{"message": "Employee created successfully"})
 }

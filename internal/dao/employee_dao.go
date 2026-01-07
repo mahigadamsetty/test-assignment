@@ -6,11 +6,15 @@ import (
 	"test-assignment/internal/model"
 )
 
+type EmployeeRepositoryInterface interface {
+	Create(emp *model.Employee) error
+}
+
 type EmployeeRepository struct {
 	db *sql.DB
 }
 
-func NewEmployeeRepository(db *sql.DB) *EmployeeRepository {
+func NewEmployeeRepository(db *sql.DB) EmployeeRepositoryInterface {
 	return &EmployeeRepository{db: db}
 }
 

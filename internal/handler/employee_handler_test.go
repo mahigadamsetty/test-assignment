@@ -8,6 +8,8 @@ import (
 	"test-assignment/internal/model"
 	"test-assignment/internal/service"
 	"testing"
+
+	"github.com/gin-gonic/gin"
 )
 
 // Fake service just to satisfy handler dependency
@@ -21,6 +23,8 @@ func (m *mockEmployeeService) CreateEmployee(emp model.Employee) error {
 }
 
 func TestEmployeeHandler_CreateEmployee_Success(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
 	mockSvc := &mockEmployeeService{
 		createFn: func(emp model.Employee) error {
 			return nil
@@ -34,13 +38,18 @@ func TestEmployeeHandler_CreateEmployee_Success(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	rec := httptest.NewRecorder()
-	handler.CreateEmployee(rec, req)
+	c, _ := gin.CreateTestContext(rec)
+	c.Request = req
+
+	handler.CreateEmployee(c)
 	if rec.Code != 201 {
 		t.Errorf("expected status 201, got %d", rec.Code)
 	}
 }
 
 func TestCreateEmployee_InvalidEmployee_Returns400(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
 	mockSvc := &mockEmployeeService{
 		createFn: func(emp model.Employee) error {
 			return service.ErrInvalidEmployee
@@ -60,7 +69,10 @@ func TestCreateEmployee_InvalidEmployee_Returns400(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
-	handler.CreateEmployee(w, req)
+	c, _ := gin.CreateTestContext(w)
+	c.Request = req
+
+	handler.CreateEmployee(c)
 
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("expected status 400, got %d", w.Code)

@@ -6,8 +6,15 @@ import (
 	"test-assignment/internal/model"
 )
 
+type mockEmployeeRepository struct{}
+
+func (m *mockEmployeeRepository) Create(emp *model.Employee) error {
+	return nil
+}
+
 func TestEmployeeService_CreateEmployee_Validation(t *testing.T) {
-	service := NewEmployeeService()
+	mockRepo := &mockEmployeeRepository{}
+	service := NewEmployeeService(mockRepo)
 
 	tests := []struct {
 		name     string
